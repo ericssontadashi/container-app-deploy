@@ -19,7 +19,7 @@ jobs:
         with:
           registry: ${{ env.registry }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.CR_PAT }}
 
       - name: Set up Docker Buildx # Required for caching
         uses: docker/setup-buildx-action@v2
