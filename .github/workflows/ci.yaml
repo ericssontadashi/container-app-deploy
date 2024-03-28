@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      registry: ghcr.io
 
     steps:
       - uses: actions/checkout@v3
@@ -23,4 +25,6 @@ jobs:
           appSourcePath: ${{ github.workspace }}
           containerAppName: backend
           resourceGroup: Net_Upskilling_Jan23
-          registryUrl: ghcr.io
+          registryUrl: ${{ env.registry }}
+          registryUsername: ${{ github.actor }}
+          registryPassword: ${{ secrets.GITHUB_TOKEN }}
