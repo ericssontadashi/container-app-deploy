@@ -41,3 +41,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max 
 
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ steps.image-tag-var.outputs.tags }}
+          containerAppName: backend
+          resourceGroup: Net_Upskilling_Jan23
