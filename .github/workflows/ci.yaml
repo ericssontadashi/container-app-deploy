@@ -27,4 +27,4 @@ jobs:
           resourceGroup: Net_Upskilling_Jan23
           registryUrl: ${{ env.registry }}
           registryUsername: ${{ github.actor }}
-          registryPassword: ${{ secrets.GITHUB_TOKEN }}
+          registryPassword: ${{ secrets.CR_PAT }}
