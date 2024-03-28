@@ -21,6 +21,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CR_PAT }}
 
+      - name: Set complete image tag
+        id: image-tag-var
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.registry }}/${{  github.repository }}
+          tags: 'latest'
+
       - name: Set up Docker Buildx # Required for caching
         uses: docker/setup-buildx-action@v2
 
@@ -30,7 +37,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: 'latest'
+          tags: ${{ steps.image-tag-var.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max 
 
