@@ -51,6 +51,8 @@ jobs:
         with:
           imageToDeploy: ${{ steps.image-tag-var.outputs.tags }}
           containerAppName: backend
+          containerAppEnvironment: dev
+          location: northeurope
           resourceGroup: Net_Upskilling_Jan23
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.CR_PAT }}
