@@ -54,5 +54,6 @@ jobs:
           containerAppEnvironment: dev
           location: northeurope
           resourceGroup: Net_Upskilling_Jan23
-          registryUsername: ${{ github.actor }}
+          registryUrl: ghcr.io
+          registryUsername: ericssontadashi
           registryPassword: ${{ secrets.CR_PAT }}
