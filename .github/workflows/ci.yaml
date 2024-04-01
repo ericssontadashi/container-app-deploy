@@ -55,5 +55,5 @@ jobs:
           location: northeurope
           resourceGroup: Net_Upskilling_Jan23
           registryUrl: ghcr.io
-          registryUsername: ericssontadashi
+          registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.CR_PAT }}
