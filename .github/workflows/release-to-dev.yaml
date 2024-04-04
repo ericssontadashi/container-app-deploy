@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-push-application:
-    uses: .github/workflows/shared-docker-build-push-v1.yaml@main
+    uses: ericssontadashi/container-app-deploy/.github/workflows/shared-docker-build-push-v1.yaml@main
     with:
       docker_tags: |
         ${{ github.sha }}
@@ -16,7 +16,7 @@ jobs:
         dev
         latest
   release-to-dev:
-    uses: .github/workflows/shared-release-to-appcontainer.yaml@main
+    uses: ericssontadashi/container-app-deploy/.github/workflows/shared-release-to-appcontainer.yaml@main
     secrets: inherit
     needs:
       - build-push-application
