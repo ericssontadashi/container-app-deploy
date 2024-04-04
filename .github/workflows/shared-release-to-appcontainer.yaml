@@ -36,6 +36,6 @@ jobs:
           resourceGroup: ${{ secrets.AZ_APP_CONTAINER_RESOURCE_GROUP }}
           registryUrl: ${{ env.registry }}
           registryUsername: ${{ github.actor }}
-          registryPassword: ${{ secrets.CR_PAT }}
+          registryPassword: ${{ secrets.token }}
 
 #For AZ_CREDENTIALS: https://learn.microsoft.com/en-us/azure/container-apps/github-actions#configure-secrets-in-your-github-repository
