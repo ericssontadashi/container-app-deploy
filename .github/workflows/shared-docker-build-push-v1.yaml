@@ -17,10 +17,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      packages: write
-      contents: read
     outputs:
       image_tag: ${{ fromJSON(steps.image-tag-var.outputs.json).tags[0] }}
     env:
