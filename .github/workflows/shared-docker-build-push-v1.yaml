@@ -1,0 +1,70 @@
+name: "Shared docker build and push"
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        type: string
+        default: "Dockerfile"
+      docker_tags:
+        type: string
+        default: ""
+        description: "Add Docker tags that wont be automatically defined from meta tag"
+    outputs:
+      image_tag:
+        description: image tag
+        value: ${{ jobs.build-and-push.outputs.image_tag }}
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+    outputs:
+      image_tag: ${{ fromJSON(steps.image-tag-var.outputs.json).tags[0] }}
+    env:
+      registry: ghcr.io
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set complete image tag
+        id: image-tag-var
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.registry }}/${{  github.repository }}
+          tags: ${{ inputs.docker_tags }}
+
+      - name: Private Packages Registry Access
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: NPMRC setup locally
+        run: |
+          cp ${NPM_CONFIG_USERCONFIG} .npmrc
+
+      - name: Set up Docker Buildx # Required for caching
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.image-tag-var.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max # https://docs.docker.com/build/cache/backends/#cache-mode
+          build-args: |
+            NPMRC=.npmrc
+            NODE_AUTH_TOKEN=${{ github.token }}

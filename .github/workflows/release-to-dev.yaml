@@ -1,0 +1,25 @@
+name: Release to dev
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-push-application:
+    uses: ./shared-docker-build-push-v1.yaml@main
+    with:
+      docker_tags: |
+        ${{ github.sha }}
+        ${{ github.run_id }}-${{ github.run_attempt }}
+        dev
+        latest
+  release-to-dev:
+    uses: ./shared-release-to-appcontainer.yaml@main
+    secrets: inherit
+    needs:
+      - build-push-application
+    with:
+      env: dev
+      app_image_tag: ${{ needs.build-push-application.outputs.image_tag }}

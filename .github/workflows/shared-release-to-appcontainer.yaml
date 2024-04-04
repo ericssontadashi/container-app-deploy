@@ -1,0 +1,41 @@
+name: "Shared release to app container"
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      app_image_tag:
+        type: string
+        description: docker tag for app image
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      registry: ghcr.io
+
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZ_CREDENTIALS }}
+          
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ inputs.app_image_tag }}
+          containerAppName: ${{ secrets.AZ_APP_CONTAINER_NAME }}
+          containerAppEnvironment: ${{ secrets.AZ_APP_CONTAINER_ENVIRONMENT }}
+          location: ${{ secrets.AZ_APP_CONTAINER_REGION }}
+          resourceGroup: ${{ secrets.AZ_APP_CONTAINER_RESOURCE_GROUP }}
+          registryUrl: ${{ env.registry }}
+          registryUsername: ${{ github.actor }}
+          registryPassword: ${{ secrets.CR_PAT }}
+
+#For AZ_CREDENTIALS: https://learn.microsoft.com/en-us/azure/container-apps/github-actions#configure-secrets-in-your-github-repository
