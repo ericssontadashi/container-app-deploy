@@ -23,3 +23,9 @@ jobs:
     with:
       env: dev
       app_image_tag: ${{ needs.build-push-application.outputs.image_tag }}
+      az_app_container_name: backend
+      az_app_container_environment: dev
+      az_app_container_region: northeurope
+      az_app_container_resource_group: HSE_DevOps_Mar2023
+      migrations_image_tag: ${{ needs.build-push-application.outputs.image_tag }}
+
