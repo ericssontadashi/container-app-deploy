@@ -43,14 +43,26 @@ jobs:
           creds: ${{ secrets.AZ_CREDENTIALS }}
 
       # Migrations
-      - name: Migrations
-        if: ${{ inputs.migrations_image_tag != null && inputs.migrations_image_tag != '' }}
-        run: |
-          echo Update migrations container app
-          az containerapp job update -n migrations -g ${{ inputs.az_app_container_resource_group }} --image ${{ inputs.migrations_image_tag }} --replica-timeout 1800
-
-          echo Run database migrations
-          az containerapp job start -n migrations -g ${{ inputs.az_app_container_resource_group }}
+      #- name: Migrations
+      #  if: ${{ inputs.migrations_image_tag != null && inputs.migrations_image_tag != '' }}
+      #  run: |
+      #    echo Update migrations container app
+      #    az containerapp job update -n migrations -g ${{ inputs.az_app_container_resource_group }} --image ${{ inputs.migrations_image_tag }} --replica-timeout 1800
+#
+      #    echo Run database migrations
+      #    az containerapp job start -n migrations -g ${{ inputs.az_app_container_resource_group }}
+      
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          imageToDeploy: ${{ inputs.migrations_image_tag }}
+          containerAppName: migrations
+          containerAppEnvironment: ${{ inputs.az_app_container_environment }}
+          location: ${{ inputs.az_app_container_region }}
+          resourceGroup: ${{ inputs.az_app_container_resource_group }}
+          registryUrl: ${{ env.registry }}
+          registryUsername: ${{ github.actor }}
+          registryPassword: ${{ secrets.CR_PAT }}
 
       # App          
       - name: Build and deploy Container App
