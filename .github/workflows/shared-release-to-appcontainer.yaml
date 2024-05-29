@@ -53,18 +53,48 @@ jobs:
 
           echo Run database migrations
           az containerapp job start -n migrations -g ${{ inputs.az_app_container_resource_group }}
+          job_output=$(az containerapp job start -n migrations --resource-group  ${{ inputs.az_app_container_resource_group }} )
+          job_id=$(echo $job_output | jq -r '.id' | awk -F'/' '{print $NF}')
+          echo "Job ID: $job_id"
+          if [ -z "$job_id" ]; then
+            return 1
+          fi
+          
+          counter=0
+          max_retries=10
+
+          while [ $counter -lt $max_retries ]; do
+            job_status_output=$(az containerapp job show -n migrations --resource-group  ${{ inputs.az_app_container_resource_group }}  --job-execution-name $job_id)
+            job_status=$(echo $job_status_output | jq -r '.properties.status')
+            echo "Job Status: $job_status"
+
+            if [ "$job_status" != "Running" ]; then
+              echo "Failed to start job. Attempt $((counter + 1)) of $max_retries."
+              counter=$((counter + 1))
+              # Wait for 5 seconds before retrying
+              sleep 5
+            fi
+            else if [ "$job_status" != "Succeeded" ]; then
+              echo "Failed to start job."
+              exit 1
+            fi
+            else 
+              echo "Job started successfully."
+              exit 0
+            fi
+          done
       
       # App          
-      - name: Build and deploy Container App
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          imageToDeploy: ${{ inputs.app_image_tag }}
-          containerAppName: ${{ inputs.az_app_container_name }}
-          containerAppEnvironment: ${{ inputs.az_app_container_environment }}
-          location: ${{ inputs.az_app_container_region }}
-          resourceGroup: ${{ inputs.az_app_container_resource_group }}
-          registryUrl: ${{ env.registry }}
-          registryUsername: ${{ github.actor }}
-          registryPassword: ${{ secrets.CR_PAT }}
+      #- name: Build and deploy Container App
+      #  uses: azure/container-apps-deploy-action@v1
+      #  with:
+      #    imageToDeploy: ${{ inputs.app_image_tag }}
+      #    containerAppName: ${{ inputs.az_app_container_name }}
+      #    containerAppEnvironment: ${{ inputs.az_app_container_environment }}
+      #    location: ${{ inputs.az_app_container_region }}
+      #    resourceGroup: ${{ inputs.az_app_container_resource_group }}
+      #    registryUrl: ${{ env.registry }}
+      #    registryUsername: ${{ github.actor }}
+      #    registryPassword: ${{ secrets.CR_PAT }}
 
 #For AZ_CREDENTIALS: https://learn.microsoft.com/en-us/azure/container-apps/github-actions#configure-secrets-in-your-github-repository
