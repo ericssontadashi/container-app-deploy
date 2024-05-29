@@ -46,13 +46,10 @@ jobs:
       - name: Migrations
         if: ${{ inputs.migrations_image_tag != null && inputs.migrations_image_tag != '' }}
         run: |
-          az containerapp job list -g ${{ inputs.az_app_container_resource_group }}
-
           echo Update migrations container app
           az containerapp job update -n migrations -g ${{ inputs.az_app_container_resource_group }} --image ${{ inputs.migrations_image_tag }} --replica-timeout 1800
 
           echo Run database migrations
-          az containerapp job start -n migrations -g ${{ inputs.az_app_container_resource_group }}
           job_output=$(az containerapp job start -n migrations --resource-group  ${{ inputs.az_app_container_resource_group }} )
           job_id=$(echo $job_output | jq -r '.id' | awk -F'/' '{print $NF}')
           echo "Job ID: $job_id"
@@ -63,6 +60,7 @@ jobs:
           counter=0
           max_retries=10
 
+          echo Validating job execution
           while [ $counter -lt $max_retries ]; do
             job_status_output=$(az containerapp job show -n migrations --resource-group  ${{ inputs.az_app_container_resource_group }}  --job-execution-name $job_id)
             job_status=$(echo $job_status_output | jq -r '.properties.status')
@@ -73,11 +71,9 @@ jobs:
               counter=$((counter + 1))
               # Wait for 5 seconds before retrying
               sleep 5
-            fi
-            else if [ "$job_status" != "Succeeded" ]; then
+            elif [ "$job_status" != "Succeeded" ]; then
               echo "Failed to start job."
               exit 1
-            fi
             else 
               echo "Job started successfully."
               exit 0
