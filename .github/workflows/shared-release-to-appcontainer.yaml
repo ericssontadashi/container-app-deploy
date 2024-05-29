@@ -66,7 +66,7 @@ jobs:
             job_status=$(echo $job_status_output | jq -r '.properties.status')
             echo "Job Status: $job_status"
 
-            if [ "$job_status" != "Running" ]; then
+            if [ "$job_status" == "Running" ]; then
               echo "Failed to start job. Attempt $((counter + 1)) of $max_retries."
               counter=$((counter + 1))
               # Wait for 5 seconds before retrying
