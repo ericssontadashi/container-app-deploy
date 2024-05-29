@@ -62,7 +62,7 @@ jobs:
 
           echo Validating job execution
           while [ $counter -lt $max_retries ]; do
-            job_status_output=$(az containerapp job show -n migrations --resource-group  ${{ inputs.az_app_container_resource_group }}  --job-execution-name $job_id)
+            job_status_output=$(az containerapp job execution show -n migrations --resource-group ${{ inputs.az_app_container_resource_group }} --job-execution-name $job_id)
             job_status=$(echo $job_status_output | jq -r '.properties.status')
             echo "Job Status: $job_status"
 
