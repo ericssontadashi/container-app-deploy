@@ -69,6 +69,7 @@ jobs:
 
             if [ "$job_status" == "Running" ] || [ "$job_status" == "Unknown" ]; then
               if [ $elapsed_time -ge $max_duration ]; then
+                az containerapp job stop -n migrations --resource-group ${{ inputs.az_app_container_resource_group }} --job-execution-name $job_id --no-wait
                 echo "Job finished with error due to timeout."
                 exit 1
               fi
