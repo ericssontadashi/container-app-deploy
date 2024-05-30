@@ -57,25 +57,27 @@ jobs:
             return 1
           fi
           
-          counter=0
-          max_retries=10
+          start_time=$(date +%s)
+          max_duration=7
 
           echo Validating job execution
-          while [ $counter -lt $max_retries ]; do
+          while true; do
             job_status_output=$(az containerapp job execution show -n migrations --resource-group ${{ inputs.az_app_container_resource_group }} --job-execution-name $job_id)
             job_status=$(echo $job_status_output | jq -r '.properties.status')
-            echo "Job Status: $job_status"
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - start_time))
 
             if [ "$job_status" == "Running" ] || [ "$job_status" == "Unknown" ]; then
-              echo "Failed to start job. Attempt $((counter + 1)) of $max_retries."
-              counter=$((counter + 1))
-              # Wait for 5 seconds before retrying
+              if [ $elapsed_time -ge $max_duration ]; then
+                echo "Job finished with error due to timeout."
+                exit 1
+              fi
               sleep 5
             elif [ "$job_status" != "Succeeded" ]; then
-              echo "Failed to start job."
+              echo "Job finished with error."
               exit 1
             else 
-              echo "Job started successfully."
+              echo "Job finished successfully."
               exit 0
             fi
           done
