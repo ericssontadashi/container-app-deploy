@@ -58,7 +58,7 @@ jobs:
           fi
           
           start_time=$(date +%s)
-          max_duration=7
+          max_duration=60
 
           echo Validating job execution
           while true; do
